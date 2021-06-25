@@ -1,0 +1,85 @@
+﻿@using VNSStoreMgmt.Areas.Identity.Data
+@using VNSStoreMgmt.Data
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+
+@inject ApplicationDbContext _repository
+@inject UserManager<ApplicationUser> _userManager
+
+@{
+    ViewData["Title"] = "Welcome";
+    ViewData["ActivePage"] = "Dashboard";
+    var user = await _userManager.GetUserAsync(User);
+
+}
+<div class="content-wrapper">
+    <section class="content">
+        <div class="row">
+            @if (!(await _userManager.IsInRoleAsync(user, "CRM") || await _userManager.IsInRoleAsync(user, "account")))
+            {
+                <div class="col-md-3 col-xl-3">
+                    <a asp-area="" asp-action="Index" asp-controller="Dialling">
+                        <div class="card bg-c-pink order-card"
+                             style="background: linear-gradient(45deg, #f93a5a, #f7778c) !important">
+                            <div class="card-block">
+                                <h6 class="m-b-20" style="font-size: 17px;"> Open Leads</h6>
+                                <h2 class="text-right">
+                                    <i class="fa fa-optin-monster f-left"></i><span>
+                                        @ViewBag.OpenLeads
+                                    </span>
+                                </h2>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-md-3 col-xl-3">
+                    <a asp-area="" asp-action="ListOfFollowUps" asp-controller="Dialling">
+                        <div class="card bg-c-yellow order-card">
+                            <div class="card-block">
+                                <h6 class="m-b-20" style="font-size: 17px;"> Follow Ups</h6>
+                                <h2 class="text-right">
+                                    <i class="fa fa-user-plus f-left"></i><span>
+                                        @ViewBag.FllowUp
+                                    </span>
+                                </h2>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-md-3 col-xl-3">
+                    <a asp-area="" asp-action="ListOfNotInterested" asp-controller="Dialling">
+                        <div class="card bg-c-pink order-card">
+                            <div class="card-block">
+                                <h6 class="m-b-20" style="font-size: 17px;"> Not Interested</h6>
+                                <h2 class="text-right">
+                                    <i class="fa fa-eyedropper f-left"></i><span>
+                                        @ViewBag.NotInterest
+                                    </span>
+                                </h2>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+
+            <div class="col-md-3 col-xl-3 ">
+                <a asp-area="" asp-action="ListOfClosures" asp-controller="Dialling">
+                    <div class="card bg-c-blue order-card">
+                        <div class="card-block">
+                            <h6 class="m-b-20" style="font-size: 17px;"> Closures (Sales)</h6>
+                            <h2 class="text-right">
+                                <i class="fa fa-bandcamp f-left"></i><span>
+                                    @ViewBag.Closed
+                                </span>
+                            </h2>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+    </section>
+</div>

@@ -1,0 +1,238 @@
+﻿@model ProductBarcodeModel
+
+@using VNSStoreMgmt.Areas.Identity.Data
+@using VNSStoreMgmt.Data
+@using Microsoft.AspNetCore.Identity
+@using Newtonsoft.Json;
+
+@inject ApplicationDbContext _repository
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> _userManager
+
+@{
+    ViewData["Title"] = "Event";
+    ViewData["ActivePage"] = "ProductEvent";
+    var user = await _userManager.GetUserAsync(User);
+    var isadmin = await _userManager.IsInRoleAsync(user, "admin");
+}
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="row">
+            <!-- Form controls -->
+            <div class="col-sm-12">
+                <div class="panel panel-bd ">
+                    <div class="panel-heading">
+                        <div class="btn-group" id="buttonlist">
+                            Add Product Event
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="col-sm-12">
+                            <form method="POST">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-sm-3 form-group">
+                                            <div class="btn btn-danger" style="width: 230px; height: 75px;">
+                                                <h1 style="margin: 13px 0px;">
+                                                    <i class="fa fa-sign-out"></i>
+                                                    OUT
+                                                </h1>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                                    <div class="row">
+                                        <div class="col-sm-8 form-group">
+                                            <label>Product Barcode</label>
+                                            <input asp-for="ProductBarcode" class="form-control disable" placeholder="Enter Product Barcode" />
+                                            @*@Html.DropDownList("ProductBarcode", null, "--Select State--", htmlAttributes: new { @class = "form-control" })*@
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+                            @if (Context.Request.Cookies["cart"] != null)
+                            {
+                                <div class="col-md-6">
+                                    <form id="frmSubmit" action="javascript: void(0)">
+                                        <div class="card text-white bg-dark mb-4" style="max-width: 18rem;">
+
+                                            <div class="card-body">
+                                                @*@Html.DropDownList("UserId", null, "--Select User--", new { id = "UserId", @class = "form-control" })*@
+                                                <input id="UserId" autofocus class="form-control" placeholder="Person Name" />
+                                                <textarea id="OutDestination" class="form-control" placeholder="Product Destination" rows="3"></textarea>
+                                            </div>
+                                            <div class="card-footer border-primary">
+                                                @*<a asp-action="SaveProductOut" asp-controller="ProductEvent" class="btn btn-primary btn-sm btn-block">Save</a>*@
+                                                <button id="btnSave" class="btn btn-primary btn-sm btn-block">
+                                                    <i class="fa fa-save"></i>
+                                                    Submit
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            }
+                        </div>
+
+                        @if (Context.Request.Cookies["cart"] != null)
+                        {
+                            List<CartViewModel> existingcarts = JsonConvert.DeserializeObject<List<CartViewModel>>(Context.Request.Cookies["cart"]?.ToString());
+
+                            <div class="col-sm-12">
+                                <div class="col-sm-12">
+                                    <table class="ui celled table example">
+                                        <thead>
+                                            <tr class="info">
+                                                <th>Id</th>
+                                                <th>Product Name</th>
+                                                @*<td>Product In Out</td>
+                                                    <td>Product Comment</td>*@
+                                                <th>Product Remark</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in existingcarts)
+                                            {
+                                                var prod = await _repository.ProductMasters.FindAsync(item.ProductId);
+                                                <tr>
+                                                    <td>@item.Id</td>
+                                                    <td>
+                                                        <h4>@prod.ProductCode | @prod.ProductName</h4>
+                                                        <i>@prod.ProductDescription</i>
+                                                    </td>
+                                                    @*<td>@item.ProductInOut</td>
+                                                        <td>@item.Outcomment</td>*@
+                                                    <td>@item.OutRemark</td>
+                                                    <th>
+                                                        <a asp-route-id="@item.Id" asp-action="DeleteCart" asp-controller="ProductEvent" class="btn btn-danger">
+                                                            <i class="fa fa-trash"></i>
+                                                        </a>
+                                                    </th>
+                                                </tr>
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        }
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#ProductBarcode").select();
+        });
+        
+        $(document).on("click", "#btnSave", function (e) {
+            e.preventDefault();
+
+            var userId = $("#UserId").val();
+            var destination = $("#OutDestination").val();
+
+            if (userId == "" || userId == null) {
+                alert('Enter person name');
+                return false;
+            }
+
+            if (destination == "" || destination == null) {
+                alert('destination not entered');
+                return false;
+            }
+
+            var model = {
+                UserId : userId,
+                OutDestination : destination
+            }
+
+            if($('#frmSubmit').valid()){
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("SaveProductOut", "ProductEvent")",
+                    data: model,
+                    dataType: "text",
+                    success: function (data) {
+                        window.location.href = "@Url.Action("Index", "Home")";
+                    }
+                });
+            };
+
+        });
+
+        var timestamp = new Date().getTime();
+
+        $("#ProductBarcode").keypress(function (event) {
+            var currentTimestamp = new Date().getTime();
+
+            if (currentTimestamp - timestamp > 50) {
+                $(this).val("");
+            }
+            timestamp = currentTimestamp;
+        });    
+
+    </script>
+
+
+    <style>
+        .bg-info {
+            background-color: #17a2b8 !important;
+        }
+
+        .bg-dark {
+            background-color: #343a40 !important;
+        }
+
+        .card-title {
+            margin-bottom: .75rem;
+        }
+
+        .card-body {
+            -webkit-box-flex: 1;
+            -ms-flex: 1 1 auto;
+            flex: 1 1 auto;
+            padding: 1.25rem;
+        }
+
+        .card-header:first-child {
+            border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
+        }
+
+        .card-header {
+            padding: .75rem 1.25rem;
+            margin-bottom: 0;
+            background-color: rgba(0,0,0,.03);
+            border-bottom: 1px solid rgba(0,0,0,.125);
+        }
+
+        .card-footer:first-child {
+            border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
+        }
+
+        .card-footer {
+            padding: .75rem 1.25rem;
+            margin-bottom: 0;
+            background-color: rgba(0,0,0,.03);
+            border-bottom: 1px solid rgba(0,0,0,.125);
+        }
+
+        .card-text:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+}

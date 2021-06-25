@@ -1,0 +1,162 @@
+﻿@model ProductOutModel
+
+@using VNSStoreMgmt.Areas.Identity.Data
+@using VNSStoreMgmt.Data
+@using Microsoft.AspNetCore.Identity
+
+@inject ApplicationDbContext _repository
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> _userManager
+
+@{
+    ViewData["Title"] = "Event";
+    ViewData["ActivePage"] = "ProductEvent";
+    var user = await _userManager.GetUserAsync(User);
+    var isadmin = await _userManager.IsInRoleAsync(user, "admin");
+}
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="row">
+            <!-- Form controls -->
+            <div class="col-sm-12">
+                <div class="panel panel-bd ">
+                    <div class="panel-heading">
+                        <div class="btn-group" id="buttonlist">
+                            Add Product Event
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <form method="POST" class="col-sm-12">
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-sm-3 form-group">
+                                        <div class="btn btn-danger" style="width: 230px; height: 75px;">
+                                            <h1 style="margin: 13px 0px;">
+                                                <i class="fa fa-sign-out"></i>
+                                                OUT
+                                            </h1>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    @if (TempData["Barcode"] != null)
+                                    {
+                                        string bc = TempData["Barcode"].ToString();
+                                        <input type="hidden" asp-for="ProductBarcode" value="@bc" />
+
+                                        var pm = _repository.ProductMasters.FirstOrDefault(p => p.ProductBarcode == bc);
+                                        <div class="col-sm-4 form-group">
+                                            <label>Product Barcode</label>
+                                            <h2>@bc</h2>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div asp-validation-summary="All" class="text-danger"></div>
+
+                                @*<div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <label>Product Location</label>
+                                            <textarea asp-for="Outcomment" cols="6" rows="5" autofocus class="form-control" placeholder="Comment"></textarea>
+                                        </div>
+                                    </div>*@
+
+                                <div class="row">
+                                    <div class="col-sm-12 form-group">
+                                        <label>Remark</label>
+                                        <textarea asp-for="OutRemark" autofocus cols="6" rows="5" class="form-control" placeholder="Remark"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="reset-button col-sm-12">
+                                    <button type="submit" class="btn btn-success w-md m-b-5">Submit</button>
+                                    <a asp-action="ProductOut" class="btn btn-primary w-md m-b-5">Cancel</a>
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                @if (TempData["Barcode"] != null)
+                                {
+                                    string bc = TempData["Barcode"].ToString();
+                                    var pm = _repository.ProductMasters.FirstOrDefault(p => p.ProductBarcode == bc);
+
+                                    <div class="card text-white bg-dark mb-3" style="max-width: 18rem;">
+                                        <div class="card-header">@pm.ProductCode | @pm.ProductName</div>
+                                        <div class="card-body">
+                                            <h5 class="card-title">Product Description</h5>
+                                            <p class="card-text">@pm.ProductDescription</p>
+                                        </div>
+                                        <div class="card-footer border-primary">
+                                            Serial No: @pm.SerialNo
+                                        </div>
+                                    </div>
+
+                                }
+                                else
+                                {
+                                    Context.Response.Redirect("/ProductEvent/ProductOut");
+                                }
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <style>
+        .bg-info {
+            background-color: #17a2b8 !important;
+        }
+
+        .bg-dark {
+            background-color: #343a40 !important;
+        }
+
+        .card-title {
+            margin-bottom: .75rem;
+        }
+
+        .card-body {
+            -webkit-box-flex: 1;
+            -ms-flex: 1 1 auto;
+            flex: 1 1 auto;
+            padding: 1.25rem;
+        }
+
+        .card-header:first-child {
+            border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
+        }
+
+        .card-header {
+            padding: .75rem 1.25rem;
+            margin-bottom: 0;
+            background-color: rgba(0,0,0,.03);
+            border-bottom: 1px solid rgba(0,0,0,.125);
+        }
+
+        .card-footer:first-child {
+            border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
+        }
+
+        .card-footer {
+            padding: .75rem 1.25rem;
+            margin-bottom: 0;
+            background-color: rgba(0,0,0,.03);
+            border-bottom: 1px solid rgba(0,0,0,.125);
+        }
+
+        .card-text:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+}

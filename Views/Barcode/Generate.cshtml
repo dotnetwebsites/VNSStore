@@ -1,0 +1,78 @@
+﻿@using VNSStoreMgmt.Areas.Identity.Data
+@using VNSStoreMgmt.Data
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+
+@inject ApplicationDbContext _repository
+@inject UserManager<ApplicationUser> _userManager
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Welcome";
+    var user = await _userManager.GetUserAsync(User);
+    long start = 2200221100;
+    int count = Context.Request.Query["cnt"].ToString() == null ? 0 : Convert.ToInt32(Context.Request.Query["cnt"]);
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Print Barcode</title>
+    <style>
+        img {
+            border-style: none;
+            vertical-align: middle;
+            border: 0;
+        }
+
+        .caption {
+            display: block;
+            font-family: Consolas;
+        }
+
+        div.item {
+            vertical-align: top;
+            display: inline-block;
+            text-align: center;
+            width: 185px;
+            margin-right: 5px;
+            margin-bottom: -6px;
+        }
+
+        @@media print {
+            @@page {
+                size: A4; /* DIN A4 standard, Europe */
+                margin: 0.1mm 0mm 0.1mm 0mm;
+            }
+        }
+    </style>
+
+</head>
+<body style="margin-top: 75px;">
+    @for (int i = 1; i <= 21; i++)
+    {
+        if (count <= 0)
+            break;
+
+        @for (int j = 1; j <= 4; j++)
+        {
+            if (count <= 0)
+                break;
+
+            <div class="item">
+                <img src="@Url.Action("GenerateBarcode", "Barcode", new { barcodeNo = start.ToString() })" />
+                <span class="caption" style="font-size:x-small">@start</span>
+                <br />
+            </div>
+            start++;
+            count--;
+        }
+        <br />
+    }
+
+</body>
+</html>

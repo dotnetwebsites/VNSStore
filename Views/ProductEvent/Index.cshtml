@@ -1,0 +1,65 @@
+﻿@model ProductMaster
+
+@using VNSStoreMgmt.Areas.Identity.Data
+@using VNSStoreMgmt.Data
+@using Microsoft.AspNetCore.Identity
+
+@inject ApplicationDbContext _repository
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> _userManager
+
+@{
+    ViewData["Title"] = "Event";
+    ViewData["ActivePage"] = "ProductEvent";
+    var user = await _userManager.GetUserAsync(User);
+    var isadmin = await _userManager.IsInRoleAsync(user, "admin");
+}
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="row">
+            <!-- Form controls -->
+            <div class="col-sm-12">
+                <div class="panel panel-bd ">
+                    <div class="panel-heading">
+                        <div class="btn-group" id="buttonlist">
+                            Add Product Event
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        
+                        <div class="row">
+                            <div class="col-sm-3 form-group">
+                                <a asp-area="" asp-controller="ProductEvent" asp-action="ProductIn">
+                                    <div class="btn btn-success" style="width: 230px; height: 75px;">
+                                        <h1 style="margin: 13px 0px;">
+                                            <i class="fa fa-sign-in"></i>
+                                            IN
+                                        </h1>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-3 form-group">
+                                <a asp-area="" asp-controller="ProductEvent" asp-action="ProductOut">
+                                    <div class="btn btn-danger" style="width: 230px; height: 75px;">
+                                        <h1 style="margin: 13px 0px;">
+                                            <i class="fa fa-sign-out"></i>
+                                            OUT
+                                        </h1>
+                                    </div>
+                                </a>
+                            </div>
+
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

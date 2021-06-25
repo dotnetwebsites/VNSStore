@@ -1,0 +1,294 @@
+﻿@using VNSStoreMgmt.Areas.Identity.Data
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> _userManager
+
+@{
+    var user = await _userManager.GetUserAsync(User);
+    var isAdmin = !SignInManager.IsSignedIn(User) ? false : await _userManager.IsInRoleAsync(user, "admin");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"] - VNS Store</title>
+    <link rel="shortcut icon" href="~/favicon.ico" type="image/x-icon">
+    <link href="~/assets/plugins/jquery-ui-1.12.1/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/plugins/lobipanel/lobipanel.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/plugins/pace/flash.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/pe-icon-7-stroke/css/pe-icon-7-stroke.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/themify-icons/themify-icons.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/dist/css/stylecrm.css" rel="stylesheet" type="text/css" />
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.datatables.net/1.10.23/css/dataTables.semanticui.min.css" rel="stylesheet" type="text/css" />
+
+    <style>
+        .order-card {
+            color: #fff;
+        }
+
+        .bg-c-blue {
+            background: linear-gradient(45deg, #00b09b, #96c93d) !important;
+        }
+
+        .bg-c-green {
+            background: linear-gradient(45deg, #2ed8b6, #59e0c5);
+        }
+
+        .bg-c-yellow {
+            background: linear-gradient(45deg, #6a11cb, #2575fc) !important;
+        }
+
+        .bg-c-pink {
+            background: linear-gradient(45deg, #ee0979, #ff6a00) !important;
+        }
+
+
+        .card {
+            border-radius: 5px;
+            -webkit-box-shadow: 0 1px 2.94px 0.06px rgba(4, 26, 55, 0.16);
+            box-shadow: 0 1px 2.94px 0.06px rgba(4, 26, 55, 0.16);
+            border: none;
+            margin-bottom: 30px;
+            -webkit-transition: all 0.3s ease-in-out;
+            transition: all 0.3s ease-in-out;
+        }
+
+            .card .card-block {
+                padding: 22px;
+            }
+
+        .order-card i {
+            font-size: 26px;
+        }
+
+        .f-left {
+            float: left;
+        }
+
+        .f-right {
+            float: right;
+        }
+
+        .ui.table:first-child {
+            margin-top: -67px;
+        }
+
+        .table.dataTable.table {
+            margin: 2px;
+        }
+
+        .table.dataTable.table {
+            margin: -60px 0px;
+        }
+
+        #buttonlist {
+            margin-left: 18px;
+        }
+
+        .reset-button {
+            padding: 0px 0px;
+        }
+
+    </style>
+</head>
+
+
+<body class="hold-transition sidebar-mini">
+    <div class="wrapper">
+        <header class="main-header">
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="logo">
+                @*<span class="logo-mini">
+                        <img src="~/assets/dist/img/favicon.png" alt="">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="~/assets/dist/img/eshalogo.png" alt="">
+                    </span>*@
+            </a>
+            <nav class="navbar navbar-static-top">
+                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="pe-7s-angle-left-circle"></span>
+                </a>
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown dropdown-user">
+                            <a asp-action="Index" asp-controller="Home" class="dropdown-toggle" data-toggle="dropdown">
+                                @if (user?.ProfileImage != null)
+                                {
+                                    <img src="~/profileimages/@user.ProfileImage" class="img-circle" width="45" height="45"
+                                         alt="user">
+                                }
+                                else
+                                {
+                                    <img src="~/assets/dist/img/avatar5.png" class="img-circle" width="45" height="45"
+                                         alt="user">
+                                }
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a asp-area="" asp-action="PersonalProfile" asp-controller="Home" title="Click here to view profile">
+                                        <i class="fa fa-user"></i> @user.FullName
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-area="" asp-action="Edit" asp-controller="Home" title="Click here to update profile">
+                                        <i class="fa fa-cog"></i> Manage Profile
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/Identity/Account/Manage/ChangePassword" title="Click here to change password">
+                                        <i class="fa fa-key"></i> Change Password
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:;">
+                                        <form asp-area="Identity" asp-page="/Account/Logout"
+                                              asp-route-returnUrl="/Identity/Account/Login">
+                                            <i class="fa fa-power-off"></i><input type="submit" class="btn btn-link"
+                                                                                  value="Sign out">
+                                        </form>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <aside class="main-sidebar">
+            <div class="sidebar">
+                <ul class="sidebar-menu">
+                    <li id="Calendar">
+                        <a asp-area="" asp-action="Index" asp-controller="Home">
+                            <i class="fa fa-calendar"></i><span>Calendar</span>
+                            <span class="pull-right-container"></span>
+                        </a>
+                    </li>
+
+                    @*<li id="Dashboard">
+                        <a asp-area="" asp-action="Dashboard" asp-controller="Home">
+                            <i class="fa fa-tachometer"></i><span>Dashboard</span>
+                            <span class="pull-right-container"></span>
+                        </a>
+                    </li>*@
+
+                    <li id="ProductEvent">
+                        <a asp-area="" asp-action="Index" asp-controller="ProductEvent">
+                            <i class="fa fa-map-signs"></i><span>Product Event</span>
+                            <span class="pull-right-container"></span>
+                        </a>
+                    </li>
+
+                    @if (await _userManager.IsInRoleAsync(user, "admin") ||
+                       await _userManager.IsInRoleAsync(user, "supervisor") || await _userManager.IsInRoleAsync(user, "superadmin"))
+                    {
+                        <li id="ProductMaster">
+                            <a asp-area="" asp-action="Index" asp-controller="ProductMaster">
+                                <i class="fa fa-plug"></i><span>Product Master</span>
+                                <span class="pull-right-container"></span>
+                            </a>
+                        </li>
+
+                        <li id="BarcodeGenerate">
+                            <a asp-area="" asp-action="Index" asp-controller="Barcode">
+                                <i class="fa fa-barcode"></i><span>Barcode Generator</span>
+                                <span class="pull-right-container"></span>
+                            </a>
+                        </li>
+                    }
+
+                    @if (await _userManager.IsInRoleAsync(user, "superadmin"))
+                    {
+                        <li id="CreateUser">
+                            <a asp-area="Identity" asp-action="Register" asp-controller="Account">
+                                <i class="fa fa-user"></i><span>Create User</span>
+                                <span class="pull-right-container"></span>
+                            </a>
+                        </li>
+
+                        <li id="ManageUser">
+                            <a asp-area="" asp-action="ManageEmployee" asp-controller="Home">
+                                <i class="fa fa-cogs"></i><span>Manage Users</span>
+                                <span class="pull-right-container"></span>
+                            </a>
+                        </li>
+
+                        <li id="ManageRoles">
+                            <a asp-area="" asp-action="Index" asp-controller="RoleManager">
+                                <i class="fa fa-wrench"></i><span>Role Manager</span>
+                                <span class="pull-right-container"></span>
+                            </a>
+                        </li>
+                    }
+
+                </ul>
+            </div>
+            <!-- /.sidebar -->
+        </aside>
+        @RenderBody()
+
+        <!-- /.content-wrapper -->
+        <footer class="main-footer">
+            <strong>Copyright &copy; 2021 <a asp-action="Index" asp-controller="Home">VNS Store</a>.</strong> All rights
+            reserved.
+        </footer>
+    </div>
+    <script src="~/assets/plugins/jQuery/jquery-1.12.4.min.js" type="text/javascript"></script>
+    <script src="~/assets/plugins/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="~/assets/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="~/assets/plugins/lobipanel/lobipanel.min.js" type="text/javascript"></script>
+    <script src="~/assets/plugins/pace/pace.min.js" type="text/javascript"></script>
+    <script src="~/assets/plugins/slimScroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <script src="~/assets/plugins/fastclick/fastclick.min.js" type="text/javascript"></script>
+    <script src="~/assets/dist/js/custom.js" type="text/javascript"></script>
+    <script src="~/assets/dist/js/dashboard.js" type="text/javascript"></script>
+
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js" type="text/javascript"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/dataTables.semanticui.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.js" type="text/javascript"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('.example').DataTable();
+
+            $('#@ViewData["ActivePage"]?.ToString()').addClass("active");
+        });
+
+        function DeleteConfirm()
+        {
+            if(confirm('Are you sure want to delete this record'))
+                return true;
+            else
+                return false;
+        }
+
+        var getUrlParameter = function getUrlParameter(sParam) {
+            var sPageURL = window.location.search.substring(1),
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                }
+            }
+        };
+    </script>
+
+
+    @RenderSection("Scripts", required: false)
+</body>
+
+</html>

@@ -1,0 +1,66 @@
+﻿@using VNSStoreMgmt.Areas.Identity.Data
+@using VNSStoreMgmt.Data
+@using Microsoft.AspNetCore.Identity
+
+@inject ApplicationDbContext _repository
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> _userManager
+
+@{
+    ViewData["Title"] = "Barcode Generate";
+    ViewData["ActivePage"] = "BarcodeGenerate";
+    var user = await _userManager.GetUserAsync(User);
+    var isadmin = await _userManager.IsInRoleAsync(user, "admin");
+}
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="row">
+            <!-- Form controls -->
+
+            <div class="col-sm-12">
+                <div class="panel panel-bd ">
+                    <div class="panel-heading">
+                        <div class="btn-group" id="buttonlist">
+                            Generate Barcode
+                        </div>
+                    </div>
+                    <div class="panel-body">
+
+                        <form class="col-sm-12">
+                            <div asp-validation-summary="All" class="text-danger"></div>
+
+                            <div class="row">
+                                <div class="col-sm-4 form-group">
+                                    <label>How many barcode you want to generate</label>
+                                    <input id="txtBarcodeCount" class="form-control" placeholder="Barcode Count" />
+                                </div>
+                            </div>
+
+                            <div class="reset-button col-sm-12">
+                                <button type="button" onclick="btnGenerate()" class="btn btn-success w-md m-b-5">Generate Barcode</button>                                
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function btnGenerate() {
+            var txtBC = $("#txtBarcodeCount").val();
+
+            if (txtBC == "" || txtBC == null || parseInt(txtBC) <= 0) {
+                alert("Count should be greater or equal to one.");
+                return false;
+            }
+
+            window.location.href = "/Barcode/Generate?cnt=" + txtBC;
+        }
+    </script>
+}
+

@@ -1,0 +1,83 @@
+@model ProductMaster
+
+@using VNSStoreMgmt.Areas.Identity.Data
+@using VNSStoreMgmt.Data
+@using Microsoft.AspNetCore.Identity
+
+@inject ApplicationDbContext _repository
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> _userManager
+
+
+@{
+    ViewData["Title"] = "Product Master";
+    ViewData["ActivePage"] = "ProductMaster";
+    var user = await _userManager.GetUserAsync(User);
+    var isadmin = await _userManager.IsInRoleAsync(user, "admin");
+}
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="row">
+            <!-- Form controls -->
+            <div class="col-sm-12">
+                <div class="panel panel-bd ">
+                    <div class="panel-heading">
+                        <div class="btn-group" id="buttonlist">
+                            Add Product
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <form method="POST" class="col-sm-12">
+                            <div asp-validation-summary="All" class="text-danger"></div>
+
+                            <div class="row">
+                                <div class="col-sm-4 form-group">
+                                    <label>Product Barcode</label>
+                                    <input asp-for="ProductBarcode" autofocus class="form-control" placeholder="Enter Product Barcode" />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-4 form-group">
+                                    <label>Product Name</label>
+                                    <input asp-for="ProductName" class="form-control" placeholder="Enter Product Name" />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-4 form-group">
+                                    <label>Product Code</label>
+                                    <input asp-for="ProductCode" class="form-control" placeholder="Enter Product Code" />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-4 form-group">
+                                    <label>Serial No</label>
+                                    <input asp-for="SerialNo" class="form-control" placeholder="Enter Serial No" />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-4 form-group">
+                                    <label>Product Description</label>
+                                    <textarea asp-for="ProductDescription" class="form-control" placeholder="Enter Product Description" rows="6"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="reset-button col-sm-12">
+                                <button type="submit" class="btn btn-success w-md m-b-5">Submit</button>
+                                <a asp-action="Index" class="btn btn-primary w-md m-b-5">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

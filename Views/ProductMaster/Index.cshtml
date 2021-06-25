@@ -1,0 +1,84 @@
+@model IEnumerable<ProductMaster>
+
+@using VNSStoreMgmt.Areas.Identity.Data
+@using Microsoft.AspNetCore.Identity
+
+@inject UserManager<ApplicationUser> _userManager
+
+@{
+    ViewData["Title"] = "Product Master";
+    ViewData["ActivePage"] = "ProductMaster";
+    var user = await _userManager.GetUserAsync(User);
+    var isadmin = await _userManager.IsInRoleAsync(user, "admin");
+}
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="panel panel-bd ">
+                    <div class="panel-heading">
+                        <div class="btn-group" id="buttonlist">
+                            View Products
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        @if (await _userManager.IsInRoleAsync(user, "admin") || await _userManager.IsInRoleAsync(user, "superadmin"))
+                        {
+                            <div class="col-md-12 col-xl-3">
+                                @Html.ActionLink("Add New", "Create", null, htmlAttributes: new { @class = "btn btn-primary w-md m-b-5" })
+                            </div>
+                        }
+                        <div class="col-md-12">
+                            <div class="col-sm-12">
+                                <table class="ui celled table example">
+                                    <thead>
+                                        <tr class="info">
+                                            <th>Product Id</th>
+                                            <td>Product Code</td>
+                                            <td>Product Barcode</td>
+                                            <th>Product Name</th>
+                                            <td>Serial No</td>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model)
+                                        {
+                                            <tr>
+                                                <td>@item.Id</td>
+                                                <td>@item.ProductCode</td>
+                                                <td>@item.ProductBarcode</td>
+                                                <td>@item.ProductName</td>
+                                                <td>@item.SerialNo</td>
+                                                <td>
+                                                    <a asp-controller="ProductMaster" asp-action="Details"
+                                                       asp-route-id="@item.Id" class="btn btn-primary" title="Details">
+                                                        <i class="fa fa-eye"></i>
+                                                    </a>
+                                                    <a asp-controller="ProductMaster" asp-action="Edit"
+                                                       asp-route-id="@item.Id" class="btn btn-warning" title="Edit Record">
+                                                        <i class="fa fa-pencil"></i>
+                                                    </a>
+
+                                                    @if (isadmin)
+                                                    {
+                                                        <a asp-controller="ProductMaster" asp-action="Delete" onclick="return DeleteConfirm()"
+                                                           asp-route-id="@item.Id" class="btn btn-danger" title="Delete Record">
+                                                            <i class="fa fa-trash"></i>
+                                                        </a>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
