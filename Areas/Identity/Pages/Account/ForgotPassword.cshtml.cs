@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using VNSStoreMgmt.Areas.Identity.Data;
 using VNSStoreMgmt.Services;
+using VNSStoreMgmt.Interfaces;
 
 namespace VNSStoreMgmt.Areas.Identity.Pages.Account
 {

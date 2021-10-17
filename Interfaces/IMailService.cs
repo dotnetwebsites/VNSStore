@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace VNSStoreMgmt.Services
+namespace VNSStoreMgmt.Interfaces
 {
     public interface IMailService
     {

@@ -2,10 +2,10 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Threading.Tasks;
 using VNSStoreMgmt.Areas.Identity.Data;
 using VNSStoreMgmt.Data;
 using Microsoft.AspNetCore.Identity;
+using VNSStoreMgmt.Interfaces;
 
 namespace VNSStoreMgmt.Services
 {

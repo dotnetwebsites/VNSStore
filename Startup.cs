@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using VNSStoreMgmt.Data;
+using VNSStoreMgmt.Interfaces;
 using VNSStoreMgmt.Services;
 using VNSStoreMgmt.Utilities;
 
@@ -39,11 +40,15 @@ namespace VNSStoreMgmt
 
             services.AddAutoMapper(typeof(Mapping));
             services.AddTransient<IMailService, SendMail>();
+            services.AddTransient<IUserService, UserService>();
 
             services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromHours(48);
             });
+            
+            services.AddSingleton<DataProtectionKeys>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

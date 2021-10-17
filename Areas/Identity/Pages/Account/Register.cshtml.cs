@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using VNSStoreMgmt.Interfaces;
 
 namespace VNSStoreMgmt.Areas.Identity.Pages.Account
 {

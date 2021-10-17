@@ -21,6 +21,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Server.IIS;
+using VNSStoreMgmt.Interfaces;
 
 namespace VNSStoreMgmt.Controllers
 {

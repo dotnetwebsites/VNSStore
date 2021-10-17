@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using VNSStoreMgmt.Utilities;
 
 [assembly: HostingStartup(typeof(VNSStoreMgmt.Areas.Identity.IdentityHostingStartup))]
 namespace VNSStoreMgmt.Areas.Identity
@@ -19,9 +20,11 @@ namespace VNSStoreMgmt.Areas.Identity
         {
             builder.ConfigureServices((context, services) =>
             {
+                //string con = Decrypt.TEXTAES(context.Configuration.GetConnectionString("DefaultConnection"));
+                string cons = context.Configuration.GetConnectionString("DefaultConnection");
+
                 services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseSqlServer(
-                        context.Configuration.GetConnectionString("DefaultConnection")));
+                    options.UseSqlServer(cons));
 
                 services.AddDefaultIdentity<ApplicationUser>(
                     options =>

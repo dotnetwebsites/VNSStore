@@ -53,18 +53,18 @@
                                                 <td>@item.SerialNo</td>
                                                 <td>
                                                     <a asp-controller="ProductMaster" asp-action="Details"
-                                                       asp-route-id="@item.Id" class="btn btn-primary" title="Details">
+                                                       asp-route-id="@item.EncryptedId" class="btn btn-primary" title="Details">
                                                         <i class="fa fa-eye"></i>
                                                     </a>
                                                     <a asp-controller="ProductMaster" asp-action="Edit"
-                                                       asp-route-id="@item.Id" class="btn btn-warning" title="Edit Record">
+                                                       asp-route-id="@item.EncryptedId" class="btn btn-warning" title="Edit Record">
                                                         <i class="fa fa-pencil"></i>
                                                     </a>
 
                                                     @if (isadmin)
                                                     {
                                                         <a asp-controller="ProductMaster" asp-action="Delete" onclick="return DeleteConfirm()"
-                                                           asp-route-id="@item.Id" class="btn btn-danger" title="Delete Record">
+                                                           asp-route-id="@item.EncryptedId" class="btn btn-danger" title="Delete Record">
                                                             <i class="fa fa-trash"></i>
                                                         </a>
                                                     }

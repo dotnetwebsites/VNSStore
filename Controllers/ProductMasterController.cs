@@ -8,6 +8,8 @@ using VNSStoreMgmt.Areas.Identity.Data;
 using System;
 using VNSStoreMgmt.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
+using VNSStoreMgmt.Utilities;
 
 namespace VNSStoreMgmt.Controllers
 {
@@ -17,19 +19,30 @@ namespace VNSStoreMgmt.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _repository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IDataProtector _protector;
 
         public ProductMasterController(ILogger<HomeController> logger,
                                 ApplicationDbContext repository,
-                                UserManager<ApplicationUser> userManager)
+                                UserManager<ApplicationUser> userManager,
+                                IDataProtectionProvider dataProtectionProvider,
+                                DataProtectionKeys dataProtectionKeys)
         {
             _logger = logger;
             _repository = repository;
             _userManager = userManager;
+            _protector = dataProtectionProvider
+                    .CreateProtector(dataProtectionKeys.IdRouteValue);
         }
 
         public async Task<IActionResult> Index()
         {
             var productMasters = await _repository.ProductMasters.ToListAsync();
+
+            foreach (var item in productMasters)
+            {
+                item.EncryptedId = _protector.Protect(item.Id.ToString());
+            }
+
             return View(productMasters);
         }
 
@@ -58,25 +71,29 @@ namespace VNSStoreMgmt.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(string id)
         {
             if (id == null)
             {
                 return NoContent();
             }
-            ProductMaster productMaster = await _repository.ProductMasters.FindAsync(id);
+
+            int decryptId = Convert.ToInt32(_protector.Unprotect(id));
+            ProductMaster productMaster = await _repository.ProductMasters.FindAsync(decryptId);
+
             return View(productMaster);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
             {
                 return NoContent();
             }
 
-            ProductMaster productMaster = await _repository.ProductMasters.FindAsync(id);
+            int decryptId = Convert.ToInt32(_protector.Unprotect(id));
+            ProductMaster productMaster = await _repository.ProductMasters.FindAsync(decryptId);
 
             return View(productMaster);
         }
