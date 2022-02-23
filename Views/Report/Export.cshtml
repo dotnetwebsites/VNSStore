@@ -1,0 +1,41 @@
+﻿@model IEnumerable<ProductMaster>
+@addTagHelper*, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <h4>Customers</h4>
+    <hr />
+    <table cellpadding="0" cellspacing="0">
+        <tr>
+            <th>CustomerID</th>
+            <th>ContactName</th>
+            <th>City</th>
+            <th>Country</th>
+        </tr>
+        @foreach (ProductMaster productMaster in Model)
+        {
+            <tr>
+                <td>@productMaster.Id</td>
+                <td>@productMaster.ProductName</td>
+                <td>@productMaster.ProductBarcode</td>
+                <td>@productMaster.ProductDescription</td>
+            </tr>
+        }
+    </table>
+    <br />
+    <br />
+    <form method="post" asp-controller="Home" asp-action="Export">
+        <input type="submit" value="Export" />
+    </form>
+</body>
+</html>

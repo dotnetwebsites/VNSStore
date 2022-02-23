@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,6 +14,9 @@ namespace VNSStoreMgmt.Models
 
         [Required(ErrorMessage = "Required Product ID")]
         public int ProductId { get; set; }
+
+        [ForeignKey("ProductId")]
+        public ProductMaster ProductMaster { get; set; }
 
         public bool ProductInOut { get; set; }
 

@@ -10,6 +10,7 @@ using VNSStoreMgmt.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection;
 using VNSStoreMgmt.Utilities;
+using System.Linq;
 
 namespace VNSStoreMgmt.Controllers
 {
@@ -38,10 +39,11 @@ namespace VNSStoreMgmt.Controllers
         {
             var productMasters = await _repository.ProductMasters.ToListAsync();
 
-            foreach (var item in productMasters)
+            productMasters = productMasters.Select(a =>
             {
-                item.EncryptedId = _protector.Protect(item.Id.ToString());
-            }
+                a.EncryptedId = _protector.Protect(a.Id.ToString());
+                return a;
+            }).ToList();
 
             return View(productMasters);
         }
@@ -85,33 +87,56 @@ namespace VNSStoreMgmt.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(string eid)
         {
-            if (id == null)
+            int did = Convert.ToInt32(_protector.Unprotect(eid));
+            var model = await _repository.ProductMasters.FindAsync(did);
+
+            if (model == null)
             {
                 return NoContent();
             }
 
-            int decryptId = Convert.ToInt32(_protector.Unprotect(id));
-            ProductMaster productMaster = await _repository.ProductMasters.FindAsync(decryptId);
+            model.EncryptedId = eid;
+            return View(model);
 
-            return View(productMaster);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(ProductMaster productMaster)
+        public async Task<IActionResult> Edit(ProductMaster model)
         {
             if (ModelState.IsValid)
             {
+                int did = Convert.ToInt32(_protector.Unprotect(model.EncryptedId));
+                var productMaster = await _repository.ProductMasters.FindAsync(did);
+
+                if (model.ProductBarcode == null)
+                {
+                    ModelState.AddModelError(string.Empty, "Barcode should not be empty.");
+                    return View(model);
+                }
+
+                if (productMaster.ProductBarcode != model.ProductBarcode &&
+                    _repository.ProductMasters.Any(p => p.ProductBarcode == model.ProductBarcode))
+                {
+                    ModelState.AddModelError(string.Empty, "Barcode already exists.");
+                    return View(model);
+                }
+
+                productMaster.ProductCode = model.ProductCode;
+                productMaster.ProductBarcode = model.ProductBarcode;
+                productMaster.SerialNo = model.SerialNo;
+                productMaster.ProductName = model.ProductName;
+                productMaster.ProductDescription = model.ProductDescription;
+
                 productMaster.UpdatedBy = User.Identity.Name;
                 productMaster.UpdatedDate = DateTime.Now;
 
-                _repository.Entry(productMaster).State = EntityState.Modified;
                 await _repository.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
 
-            return View(productMaster);
+            return View(model);
         }
 
         [HttpGet, ActionName("Delete")]

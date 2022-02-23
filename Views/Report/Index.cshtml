@@ -1,0 +1,68 @@
+﻿@model IEnumerable<Accountability>
+
+@using VNSStoreMgmt.Areas.Identity.Data
+@using Microsoft.AspNetCore.Identity
+@using VNSStoreMgmt.Data
+
+@inject ApplicationDbContext _repository
+@inject UserManager<ApplicationUser> _userManager
+
+@{
+    ViewData["Title"] = "Product Master";
+    ViewData["ActivePage"] = "Report";
+    var user = await _userManager.GetUserAsync(User);
+}
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="row">
+
+            <div class="col-sm-12">
+                <div class="panel panel-bd ">
+                    <div class="panel-heading">
+                        <div class="btn-group" id="buttonlist">
+                            View Out Products
+                        </div>                        
+                    </div>
+                    <div class="panel-body">                        
+                        <div class="col-md-12">
+                            <div class="col-sm-12">
+                                <form method="post" asp-controller="Report" asp-action="Export">
+                                    <input class="btn btn-primary" type="submit" value="Export" />
+                                </form>
+                                <br />
+                                <table class="ui celled table example">
+                                    <thead>
+                                        <tr class="info">
+                                            <th>Id</th>
+                                            <th>Product Name</th>
+                                            <th>Product out date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var a in Model)
+                                        {
+                                            <tr>
+                                                <td>@a.Id</td>
+                                                <td>
+                                                    <h4>@a.ProductMaster.ProductCode | @a.ProductMaster.ProductName</h4>
+                                                    <i>Description : <b>@a.ProductMaster.ProductDescription</b></i><br />
+                                                    <i>Out remark : <b>@a.OutRemark</b></i><br />
+                                                    <i>Product Out by : <b>@a.ProductOutBy</b></i><br />
+                                                </td>
+                                                <td>
+                                                    @a.OutDate.ToString("d MMM yyyy hh:mm tt")
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

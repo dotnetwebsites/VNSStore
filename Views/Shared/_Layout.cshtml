@@ -97,7 +97,6 @@
         .reset-button {
             padding: 0px 0px;
         }
-
     </style>
 </head>
 
@@ -174,13 +173,6 @@
                         </a>
                     </li>
 
-                    @*<li id="Dashboard">
-                        <a asp-area="" asp-action="Dashboard" asp-controller="Home">
-                            <i class="fa fa-tachometer"></i><span>Dashboard</span>
-                            <span class="pull-right-container"></span>
-                        </a>
-                    </li>*@
-
                     <li id="ProductEvent">
                         <a asp-area="" asp-action="Index" asp-controller="ProductEvent">
                             <i class="fa fa-map-signs"></i><span>Product Event</span>
@@ -189,7 +181,7 @@
                     </li>
 
                     @if (await _userManager.IsInRoleAsync(user, "admin") ||
-                       await _userManager.IsInRoleAsync(user, "supervisor") || await _userManager.IsInRoleAsync(user, "superadmin"))
+                     await _userManager.IsInRoleAsync(user, "supervisor") || await _userManager.IsInRoleAsync(user, "superadmin"))
                     {
                         <li id="ProductMaster">
                             <a asp-area="" asp-action="Index" asp-controller="ProductMaster">
@@ -229,6 +221,13 @@
                             </a>
                         </li>
                     }
+
+                    <li id="Report">
+                        <a asp-area="" asp-action="Index" asp-controller="Report">
+                            <i class="fa fa-tachometer"></i><span>Out products report</span>
+                            <span class="pull-right-container"></span>
+                        </a>
+                    </li>
 
                 </ul>
             </div>

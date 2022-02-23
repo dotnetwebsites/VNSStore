@@ -26,7 +26,9 @@ namespace VNSStoreMgmt.Services
             {
                 UserName = "admin",
                 Email = "admin@admin.com",
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                IsActive = true,
+                Gender = "male"
             };
 
             var u = _userManager.Users.Any(p => p.UserName == "admin");
