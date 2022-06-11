@@ -64,7 +64,12 @@ namespace VNSStoreMgmt.Controllers
         {
             if (ModelState.IsValid)
             {
-                var productMaster = _repository.ProductMasters.FirstOrDefault(p => p.ProductBarcode == productBarcodeModel.ProductBarcode);
+                List<string> barcodes = productBarcodeModel.ProductBarcode
+                .Split(new string[] { Environment.NewLine }, StringSplitOptions.None).Where(p => p != "")
+                .Distinct()
+                .ToList();
+
+                var productMaster = _repository.ProductMasters.Where(p => barcodes.Contains(p.ProductBarcode)).ToList();
 
                 if (productBarcodeModel.Date == null)
                 {
@@ -78,15 +83,15 @@ namespace VNSStoreMgmt.Controllers
                     return View(productBarcodeModel);
                 }
 
-                var accountability = _repository.Accountabilities.FirstOrDefault(p => p.ProductId == productMaster.Id && p.OutDate.Date == productBarcodeModel.Date && p.ProductInOut == true);
-
-                if (accountability == null)
+                List<Accountability> acc = new List<Accountability>();
+                foreach (var p in productMaster)
                 {
-                    ModelState.AddModelError(string.Empty, "Product not found for this date");
-                    return View(productBarcodeModel);
+                    var accountability = _repository.Accountabilities.FirstOrDefault(x => x.ProductId == p.Id && x.OutDate.Date == productBarcodeModel.Date && x.ProductInOut == true);
+
+                    if (accountability != null) acc.Add(accountability);
                 }
 
-                ViewBag.Acc = accountability;
+                ViewBag.Acc = acc.ToList();
 
                 return View(productBarcodeModel);
             }
@@ -128,9 +133,14 @@ namespace VNSStoreMgmt.Controllers
                 }
             }
 
+            List<string> barcodes = productBarcodeModel.ProductBarcode
+                .Split(new string[] { Environment.NewLine }, StringSplitOptions.None).Where(p => p != "")
+                .Distinct()
+                .ToList();
+
             if (ModelState.IsValid)
             {
-                var productMaster = _repository.ProductMasters.FirstOrDefault(p => p.ProductBarcode == productBarcodeModel.ProductBarcode);
+                var productMaster = _repository.ProductMasters.FirstOrDefault(p => barcodes.Contains(p.ProductBarcode));
 
                 if (productMaster == null)
                 {
@@ -140,7 +150,8 @@ namespace VNSStoreMgmt.Controllers
                     return View(productBarcodeModel);
                 }
 
-                TempData["Barcode"] = productBarcodeModel.ProductBarcode;
+                //TempData["Barcode"] = productBarcodeModel.ProductBarcode;
+                TempData["Barcode"] = barcodes;
 
                 return RedirectToAction("ProductOutRecord");
             }
@@ -171,71 +182,68 @@ namespace VNSStoreMgmt.Controllers
         {
             if (ModelState.IsValid)
             {
-                var productMaster = _repository.ProductMasters.FirstOrDefault(p => p.ProductBarcode == model.ProductBarcode);
+                string[] barcodes = model.ProductBarcode.Split(",");
+                var productMaster = _repository.ProductMasters.Where(p => barcodes.Contains(p.ProductBarcode)).ToList();
 
                 if (productMaster != null)
                 {
-                    Accountability ac = new Accountability();
-                    ac.ProductId = productMaster.Id;
-                    ac.ProductInOut = true;
-                    //ac.Outcomment = model.Outcomment;
-                    ac.OutRemark = model.OutRemark;
-                    ac.ProductOutBy = User.Identity.Name;
-                    ac.OutDate = DateTime.Now;
-                    ac.CreatedBy = User.Identity.Name;
-                    ac.CreatedDate = DateTime.Now;
+                    CookieOptions option = new CookieOptions();
+                    List<CartViewModel> carts = new List<CartViewModel>();
+                    int cnt = 1;
 
-                    return AddProduct(ac);
+                    if (Request.Cookies["cart"] != null)
+                    {
+                        List<CartViewModel> existingcarts = JsonConvert.DeserializeObject<List<CartViewModel>>(Request.Cookies["cart"]?.ToString());
 
+                        foreach (var cart in existingcarts)
+                        {
+                            carts.Add(cart);
+                            cnt++;
+                        }
+
+                        foreach (var p in productMaster)
+                        {
+                            CartViewModel cv = new CartViewModel();
+                            cv.Id = cnt++;
+                            cv.ProductId = p.Id;
+                            cv.ProductInOut = true;
+                            cv.Outcomment = model.OutRemark;
+                            cv.OutRemark = model.OutRemark;
+                            carts.Add(cv);
+                        }
+
+                        Response.Cookies.Append("cart", JsonConvert.SerializeObject(carts.ToList()), option);
+                    }
+                    else
+                    {
+                        foreach (var p in productMaster)
+                        {
+                            CartViewModel cv = new CartViewModel();
+                            cv.Id = cnt++;
+                            cv.ProductId = p.Id;
+                            cv.ProductInOut = true;
+                            cv.Outcomment = model.OutRemark;
+                            cv.OutRemark = model.OutRemark;
+                            carts.Add(cv);
+                        }
+
+                        Response.Cookies.Append("cart", JsonConvert.SerializeObject(carts.ToList()), option);
+                    }
+
+                    return RedirectToAction("ProductOut");
                 }
             }
 
             return View();
         }
 
-        public IActionResult AddProduct(Accountability model)
+        [HttpGet]
+        public IActionResult ResetCookies()
         {
-            CookieOptions option = new CookieOptions();
-            List<CartViewModel> carts = new List<CartViewModel>();
-
             if (Request.Cookies["cart"] != null)
-            {
-                List<CartViewModel> existingcarts = JsonConvert.DeserializeObject<List<CartViewModel>>(Request.Cookies["cart"]?.ToString());
+                Response.Cookies.Delete("cart");
 
-                int cnt = 1;
-                foreach (var cart in existingcarts)
-                {
-                    carts.Add(cart);
-                    cnt++;
-                }
-
-                CartViewModel cv = new CartViewModel();
-                cv.Id = cnt++;
-                cv.ProductId = model.ProductId;
-                cv.ProductInOut = true;
-                cv.Outcomment = model.Outcomment;
-                cv.OutRemark = model.OutRemark;
-
-                //existingcarts.Add(cv);
-                carts.Add(cv);
-
-                Response.Cookies.Append("cart", JsonConvert.SerializeObject(carts.ToList()), option);
-                return RedirectToAction("ProductOut");
-            }
-            else
-            {
-                CartViewModel cv = new CartViewModel();
-                cv.Id = 1;
-                cv.ProductId = model.ProductId;
-                cv.ProductInOut = true;
-                cv.Outcomment = model.Outcomment;
-                cv.OutRemark = model.OutRemark;
-
-                carts.Add(cv);
-
-                Response.Cookies.Append("cart", JsonConvert.SerializeObject(carts.ToList()), option);
-                return RedirectToAction("ProductOut");
-            }
+            return RedirectToAction("ProductOut");
         }
 
         [HttpPost]
@@ -287,7 +295,8 @@ namespace VNSStoreMgmt.Controllers
             if (model.Remark == null)
                 return Json("Please enter remark and ty again.");
 
-            var productMaster = _repository.ProductMasters.FirstOrDefault(p => p.ProductBarcode == model.Barcode);
+            List<string> barcodes = model.Barcode.Split(",").ToList();
+            var productMaster = _repository.ProductMasters.Where(p => barcodes.Contains(p.ProductBarcode)).ToList();
 
             if (model.Date == null)
             {
@@ -301,25 +310,27 @@ namespace VNSStoreMgmt.Controllers
                 return View(model);
             }
 
-            var ac = _repository.Accountabilities.FirstOrDefault(p => p.ProductId == productMaster.Id && p.OutDate.Date == model.Date && p.ProductInOut == true);
-
-            if (ac == null)
+            foreach (var prod in productMaster)
             {
-                ModelState.AddModelError(string.Empty, "Product not found for this date");
-                return View(model);
+                var ac = _repository.Accountabilities.FirstOrDefault(p => p.ProductId == prod.Id && p.OutDate.Date == model.Date && p.ProductInOut == true);
+
+                if (ac == null)
+                {
+                    ModelState.AddModelError(string.Empty, "Product not found for this date");
+                    return View(model);
+                }
+
+                ac.ProductInOut = false;
+                ac.InRemark = model.Remark;
+
+                ac.ProductInBy = model.UserId;
+                ac.InDate = DateTime.Now;
+
+                ac.UpdatedBy = User.Identity.Name;
+                ac.UpdatedDate = DateTime.Now;
+
+                _repository.SaveChanges();
             }
-
-            ac.ProductInOut = false;
-            ac.InRemark = model.Remark;
-
-            ac.ProductInBy = model.UserId;
-            ac.InDate = DateTime.Now;
-
-            ac.UpdatedBy = User.Identity.Name;
-            ac.UpdatedDate = DateTime.Now;
-
-            //_repository.Accountabilities.Add(ac);
-            _repository.SaveChanges();
 
             var url = Url.Action("ProductIn", "ProductEvent", new { date = model.Date.ToString("yyyy-MM-dd") });
             return Json(url);
@@ -356,16 +367,3 @@ namespace VNSStoreMgmt.Controllers
 
     }
 }
-
-//var ac = new Accountability();
-//ac.ProductId = productMaster.Id;
-//ac.ProductInOut = true;
-//ac.Outcomment = model.Outcomment;
-//ac.OutRemark = model.OutRemark;
-//ac.ProductOutBy = User.Identity.Name;
-//ac.OutDate = DateTime.Now;
-//ac.CreatedBy = User.Identity.Name;
-//ac.CreatedDate = DateTime.Now;
-
-//_repository.Accountabilities.Add(ac);
-//_repository.SaveChanges();

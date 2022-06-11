@@ -49,6 +49,7 @@
                                     <div class="row">
                                         <div class="col-sm-8 form-group">
                                             <label>Product Barcode</label>
+                                            <textarea asp-for="ProductBarcode" rows="8" class="form-control" placeholder="Enter Product Barcode"></textarea>
                                             @if (Context.Request.Query["date"].ToString() != null)
                                             {
                                                 DateTime temp;
@@ -61,47 +62,80 @@
                                                     <input id="hdnDate" asp-for="Date" type="hidden" value="@Context.Request.Query["date"].ToString()" />
                                                 }
                                             }
-                                            <input asp-for="ProductBarcode" autofocus class="form-control disable" placeholder="Enter Product Barcode" />
+                                            @*<input asp-for="ProductBarcode" autofocus class="form-control disable" placeholder="Enter Product Barcode" />*@
                                         </div>
                                     </div>
 
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fa fa-save"></i>
+                                        Submit
+                                    </button>
+
                                 </form>
+
+                                @if (ViewBag.Acc != null)
+                                {
+                                    <br />
+                                    <form id="frmSubmit" action="javascript: void(0)">
+                                        <div class="row">
+                                            <div class="col-sm-8 form-group">
+                                                <input id="UserId" autofocus class="form-control" placeholder="Received By" />
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-8 form-group">
+                                                <textarea id="txtRemark" class="form-control" placeholder="Remark" rows="3"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <button id="btnSave" class="btn btn-primary btn-sm">
+                                            <i class="fa fa-save"></i>
+                                            Receive
+                                        </button>
+                                    </form>
+                                }
 
                             </div>
                             <div class="col-sm-6">
                                 @if (ViewBag.Acc != null)
                                 {
-                                    var accountability = ViewBag.Acc as Accountability;
+                                    var accountabilities = ViewBag.Acc as List<Accountability>;
+                                    List<string> str = new List<string>();
 
-                                    var pm = _repository.ProductMasters.FirstOrDefault(p => p.Id == accountability.ProductId);
+                                    <table class="ui celled table defaultDatatable">
+                                        <thead>
+                                            <tr class="info">
+                                                <th>Id</th>
+                                                <th>Product Name</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var accountability in accountabilities)
+                                            {
+                                                var pm = _repository.ProductMasters.FirstOrDefault(p => p.Id == accountability.ProductId);
+                                                str.Add(pm.ProductBarcode);
+                                                <tr>
+                                                    <td>@pm.Id</td>
+                                                    <td>
 
-                                    <form id="frmSubmit" action="javascript: void(0)">
+                                                        <h4>@pm.ProductCode | @pm.ProductName</h4>
+                                                        <i>Description : <b>@pm.ProductDescription</b></i><br />
+                                                        <i>Out remark : <b>@accountability.OutRemark</b></i><br />
+                                                        <i>Out by : <b>@accountability.ProductOutBy</b></i><br />
+                                                        <i>Out Time : <b>@accountability.OutDate.ToString("hh:mm tt")</b></i>
+                                                        <i>Serial No : <b>@pm.SerialNo</b></i>
+                                                    </td>
 
-                                        <div class="card text-white bg-dark mb-3" style="max-width: 18rem;">
-                                            <div class="card-header">@pm.ProductCode | @pm.ProductName</div>
-                                            <div class="card-body">
-                                                <i>Description : <b>@pm.ProductDescription</b></i><br />
-                                                <i>Out remark : <b>@accountability.OutRemark</b></i><br />
-                                                <i>Out by : <b>@accountability.ProductOutBy</b></i><br />
-                                                <i>Out Time : <b>@accountability.OutDate.ToString("hh:mm tt")</b></i><br />
+                                                </tr>
 
-                                                <input id="txtBarcode" type="hidden" value="@pm.ProductBarcode" />
-                                                <input id="UserId" autofocus class="form-control" placeholder="Received By" />
-                                                <textarea id="txtRemark" class="form-control" placeholder="Remark" rows="3"></textarea>
-                                            </div>
-                                            <div class="card-footer border-primary">
-                                                Serial No: @pm.SerialNo
-                                                <button id="btnSave" class="btn btn-primary">Received</button>
-                                            </div>
-                                        </div>
-
-                                    </form>
+                                            }
+                                        </tbody>
+                                    </table>
+                                    <input id="txtBarcode" type="hidden" value="@string.Join(",", str)" />
                                 }
                             </div>
                         </div>
-
-
-
 
                         <div class="col-sm-12">
                             <div class="col-sm-12">
@@ -203,7 +237,12 @@
         $(document).ready(function () {
             $("#ProductBarcode").select();
         });
-        
+
+        $('.defaultDatatable').DataTable({
+            paging: false,
+            searching: false
+        });
+
         $(document).on("click", "#btnSave", function (e) {
             e.preventDefault();
 
@@ -245,17 +284,6 @@
                 });
             };
 
-        });
-
-        var timestamp = new Date().getTime();
-
-        $("#ProductBarcode").keypress(function (event) {
-            var currentTimestamp = new Date().getTime();
-
-            if (currentTimestamp - timestamp > 50) {
-                $(this).val("");
-            }
-            timestamp = currentTimestamp;
         });
 
     </script>

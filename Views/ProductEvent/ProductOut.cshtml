@@ -47,10 +47,18 @@
                                     <div class="row">
                                         <div class="col-sm-8 form-group">
                                             <label>Product Barcode</label>
-                                            <input asp-for="ProductBarcode" class="form-control disable" placeholder="Enter Product Barcode" />
-                                            @*@Html.DropDownList("ProductBarcode", null, "--Select State--", htmlAttributes: new { @class = "form-control" })*@
+                                            <textarea asp-for="ProductBarcode" rows="8" class="form-control" placeholder="Enter Product Barcode"></textarea>
                                         </div>
                                     </div>
+
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fa fa-save"></i>
+                                        Submit
+                                    </button>
+                                    <a asp-action="ResetCookies" asp-controller="productevent" class="btn btn-primary btn-sm">
+                                        <i class="fa fa-refresh"></i>
+                                        Reset
+                                    </a>
                                 </div>
                             </form>
 
@@ -61,12 +69,10 @@
                                         <div class="card text-white bg-dark mb-4" style="max-width: 18rem;">
 
                                             <div class="card-body">
-                                                @*@Html.DropDownList("UserId", null, "--Select User--", new { id = "UserId", @class = "form-control" })*@
                                                 <input id="UserId" autofocus class="form-control" placeholder="Person Name" />
                                                 <textarea id="OutDestination" class="form-control" placeholder="Product Destination" rows="3"></textarea>
                                             </div>
                                             <div class="card-footer border-primary">
-                                                @*<a asp-action="SaveProductOut" asp-controller="ProductEvent" class="btn btn-primary btn-sm btn-block">Save</a>*@
                                                 <button id="btnSave" class="btn btn-primary btn-sm btn-block">
                                                     <i class="fa fa-save"></i>
                                                     Submit
@@ -89,8 +95,6 @@
                                             <tr class="info">
                                                 <th>Id</th>
                                                 <th>Product Name</th>
-                                                @*<td>Product In Out</td>
-                                                    <td>Product Comment</td>*@
                                                 <th>Product Remark</th>
                                                 <th></th>
                                             </tr>
@@ -105,8 +109,6 @@
                                                         <h4>@prod.ProductCode | @prod.ProductName</h4>
                                                         <i>@prod.ProductDescription</i>
                                                     </td>
-                                                    @*<td>@item.ProductInOut</td>
-                                                        <td>@item.Outcomment</td>*@
                                                     <td>@item.OutRemark</td>
                                                     <th>
                                                         <a asp-route-id="@item.Id" asp-action="DeleteCart" asp-controller="ProductEvent" class="btn btn-danger">
@@ -139,7 +141,7 @@
         $(document).ready(function () {
             $("#ProductBarcode").select();
         });
-        
+
         $(document).on("click", "#btnSave", function (e) {
             e.preventDefault();
 
@@ -175,16 +177,16 @@
 
         });
 
-        var timestamp = new Date().getTime();
+        //var timestamp = new Date().getTime();
 
-        $("#ProductBarcode").keypress(function (event) {
-            var currentTimestamp = new Date().getTime();
+        //$("#ProductBarcode").keypress(function (event) {
+        //    var currentTimestamp = new Date().getTime();
 
-            if (currentTimestamp - timestamp > 50) {
-                $(this).val("");
-            }
-            timestamp = currentTimestamp;
-        });    
+        //    if (currentTimestamp - timestamp > 50) {
+        //        $(this).val("");
+        //    }
+        //    timestamp = currentTimestamp;
+        //});
 
     </script>
 

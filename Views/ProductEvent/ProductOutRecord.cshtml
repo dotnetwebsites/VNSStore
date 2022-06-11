@@ -43,25 +43,24 @@
                                 <div class="row">
                                     @if (TempData["Barcode"] != null)
                                     {
-                                        string bc = TempData["Barcode"].ToString();
-                                        <input type="hidden" asp-for="ProductBarcode" value="@bc" />
-
-                                        var pm = _repository.ProductMasters.FirstOrDefault(p => p.ProductBarcode == bc);
+                                        string[] bc = (string[])TempData["Barcode"];
+                                        <input type="hidden" asp-for="ProductBarcode" value="@string.Join(",", bc)" />
                                         <div class="col-sm-4 form-group">
                                             <label>Product Barcode</label>
-                                            <h2>@bc</h2>
+                                            <ul>
+                                                @foreach (var b in bc)
+                                                {
+                                                    var pm = _repository.ProductMasters.FirstOrDefault(p => p.ProductBarcode == b);
+                                                    <li>
+                                                        <p>@b</p>
+                                                    </li>
+                                                }
+                                            </ul>
                                         </div>
                                     }
                                 </div>
 
                                 <div asp-validation-summary="All" class="text-danger"></div>
-
-                                @*<div class="row">
-                                        <div class="col-sm-12 form-group">
-                                            <label>Product Location</label>
-                                            <textarea asp-for="Outcomment" cols="6" rows="5" autofocus class="form-control" placeholder="Comment"></textarea>
-                                        </div>
-                                    </div>*@
 
                                 <div class="row">
                                     <div class="col-sm-12 form-group">
@@ -77,31 +76,6 @@
 
                             </div>
 
-                            <div class="col-md-6">
-
-                                @if (TempData["Barcode"] != null)
-                                {
-                                    string bc = TempData["Barcode"].ToString();
-                                    var pm = _repository.ProductMasters.FirstOrDefault(p => p.ProductBarcode == bc);
-
-                                    <div class="card text-white bg-dark mb-3" style="max-width: 18rem;">
-                                        <div class="card-header">@pm.ProductCode | @pm.ProductName</div>
-                                        <div class="card-body">
-                                            <h5 class="card-title">Product Description</h5>
-                                            <p class="card-text">@pm.ProductDescription</p>
-                                        </div>
-                                        <div class="card-footer border-primary">
-                                            Serial No: @pm.SerialNo
-                                        </div>
-                                    </div>
-
-                                }
-                                else
-                                {
-                                    Context.Response.Redirect("/ProductEvent/ProductOut");
-                                }
-
-                            </div>
                         </form>
                     </div>
                 </div>
